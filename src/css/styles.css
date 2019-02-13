@@ -1,0 +1,8 @@
+#grad1 {
+  background: linear-gradient(to right, pink , yellow, green, cyan, blue, violet);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 60px;
+  line-height: 60px;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
