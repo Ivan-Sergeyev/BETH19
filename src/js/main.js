@@ -1,8 +1,14 @@
 App = {
     // ==================== member variables ====================
 
-    listings: [
+    web3Provider: null,
+    contracts: {},
+    favor_contract_instance: null,
+
+    listings: [],
+    mock_listings: [
         {
+            "id": 242,
             "title": "Help writing an essay",
             "category": 3,
             "description": "My son needs help for a school project",
@@ -11,6 +17,7 @@ App = {
             "performer_addr": "0x3212"
         },
         {
+            "id": 211,
             "title": "Water my plants",
             "category": 2,
             "description": "Need someone to water 13 plants",
@@ -19,6 +26,7 @@ App = {
             "performer_addr": "0x0000"
         },
         {
+            "id": 219,
             "title": "Driver for elderly lady",
             "category": 1,
             "description": "Grandma can't drive, needs a ride",
@@ -27,10 +35,6 @@ App = {
             "performer_addr": "0x0000"
         }
     ],
-
-    web3Provider: null,
-    favor_contract_instance: null,
-    contracts: {},
 
     // ==================== init ====================
 
@@ -74,11 +78,13 @@ App = {
             App.contracts.Favor.setProvider(App.web3Provider);
 
             App.contracts.Favor.deployed().then(function(instance) {
+                // get contract instance
                 App.favor_contract_instance = instance;
 
                 // -------------------- bind events --------------------
 
                 // bind event BalanceChanged(address user_addr);
+                console.log("Bind event BalanceChanged");
                 App.favor_contract_instance.BalanceChanged().watch(function(error, result) {
                     console.log("On BalanceChanged");
                     if (error) {
@@ -89,6 +95,7 @@ App = {
                 });
 
                 // bind event ListingAccepted(bytes32 listing_id);
+                console.log("Bind event ListingAccepted");
                 App.favor_contract_instance.ListingAccepted().watch(function(error, result) {
                     console.log("On ListingAccepted");
                     if (error) {
@@ -99,6 +106,7 @@ App = {
                 });
 
                 // bind event ListingAborted(bytes32 listing_id);
+                console.log("Bind event ListingAborted");
                 App.favor_contract_instance.ListingAborted().watch(function(error, result) {
                     console.log("On ListingAborted");
                     if (error) {
@@ -109,6 +117,7 @@ App = {
                 });
 
                 // bind event ListingAbortRequest(bytes32 listing_id);
+                console.log("Bind event ListingAbortRequest");
                 App.favor_contract_instance.ListingAbortRequest().watch(function(error, result) {
                     console.log("On ListingAbortRequest");
                     if (error) {
@@ -119,6 +128,7 @@ App = {
                 });
 
                 // bind event ListingCompleted(bytes32 listing_id);
+                console.log("Bind event ListingCompleted");
                 App.favor_contract_instance.ListingCompleted().watch(function(error, result) {
                     console.log("On ListingCompleted");
                     if (error) {
@@ -129,6 +139,7 @@ App = {
                 });
 
                 // bind event ListingCompleteRequest(bytes32 listing_id);
+                console.log("Bind event ListingCompleteRequest");
                 App.favor_contract_instance.ListingCompleteRequest().watch(function(error, result) {
                     console.log("On ListingCompleteRequest");
                     if (error) {
@@ -139,6 +150,7 @@ App = {
                 });
 
                 // bind event ListingCreated(bytes32 listing_id);
+                console.log("Bind event ListingCreated");
                 App.favor_contract_instance.ListingCreated().watch(function(error, result) {
                     console.log("On ListingCreated");
                     if (error) {
@@ -149,7 +161,7 @@ App = {
                 });
 
                 // get listings
-                console.log("1");
+                console.log("Get listings");
                 App.favor_contract_instance.getListingsHeadId.call().then(function(result) {
                     console.log("2");
                     console.log(result);
@@ -286,12 +298,16 @@ $(function () {
                 renderFavorApplication(url.split('/')[1], App.listings);
             },
 
-            // Single Products page.
-            '#product': function() {
-                // Get the index of which product we want to show and call the appropriate function.
-                var index = url.split('#product/')[1].trim();
-                renderSingleProductPage(index, products);
+            '#TransactApplication': function() {
+                transactApplication(url.split('/')[1], App.listings);
+            },
+
+            '#TransactAccept': function() {
+                transactAccept(url.split('/')[1], App.listings);
             }
+
+
+
         };
 
         if(map[temp]){
@@ -302,6 +318,7 @@ $(function () {
             renderErrorPage();
         }
     }
+
 
     function renderOpenListings(){
         $('#do_a_favor').removeClass('d-none');
@@ -320,6 +337,18 @@ $(function () {
         return userRequests;
     }
 
+    function transactApplication(favorId) {
+
+        // Todo
+        alert('Your transaction has been completed')
+
+    }
+    function transactAccept(favorId) {
+
+        // Todo
+        alert('Your transaction has been completed')
+
+    }
     function updateListings() {
         $('#do_a_favor').append(renderAllListings());
     }
@@ -335,7 +364,9 @@ $(function () {
         }
 
         $('#apply_for_favor').removeClass('d-none');
-        $('#apply_for_favor').append(renderListingTemplate(data[favorId]));
+        $('#apply_for_favor').append(renderApplicationTemplate(data.filter(
+            fav => {return fav.id == favorId;})[0]
+        ));
     }
 
     function createQueryHash(filters){
@@ -348,18 +379,12 @@ $(function () {
 
     function renderAllListings(data){
         data = App.listings;
-        for (i = 0; i < data.length; i++) {
-            data[i]['id'] = i;
-        }
         return data.map(renderListingTemplate);
     }
 
     function renderAllListings(data){
         // TODO: logic
         data = App.listings;
-        for (i = 0; i < data.length; i++) {
-            data[i]['id'] = i;
-        }
         return data.map(renderListingTemplate);
     }
 
@@ -376,6 +401,19 @@ $(function () {
         return template;
     }
 
+    function renderApplicationTemplate(fields) {
+        var template = $("#favorApplicationTemplate").clone();
+        template[0].id = "";
+        template.removeClass('d-none');
+        template.find('.listingTitle').text(fields.title);
+        template.find('.listingDescription').text(fields.description);
+        template.find('.listingCategory').text(fields.category);
+        template.find('.listingCost').text(fields.cost);
+        template.find('.listingLocation').text(fields.location);
+        template.find('a').attr('href', '#TransactApplication/'+fields.id);
+        return template;
+    }
+
     function renderRequestTemplate(fields) {
         var template = $("#RequestTemplate").clone();
         template[0].id = "";
@@ -385,7 +423,8 @@ $(function () {
         template.find('.listingCategory').text(fields.category);
         template.find('.listingCost').text(fields.cost);
         template.find('.listingLocation').text(fields.location);
-        template.find('a').attr('href', '#Apply/'+fields.id);
+        template.find('.performerAddress').text(fields.performer_addr);
+        template.find('a').attr('href', '#TransactAccept/'+fields.id);
         // TODO: change 0x0000 to the ethereum NULL address
         if (fields.performer_addr != '0x0000') {
             template.find('.favor_available').removeClass('d-none');
