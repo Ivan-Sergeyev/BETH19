@@ -41,11 +41,6 @@ body {
   background-color: #fff;
 }
 
-.inner{
-
-  max-width: 40em;
-}
-
 body {
   display: -ms-flexbox;
   display: flex;
