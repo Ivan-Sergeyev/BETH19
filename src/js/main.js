@@ -1,5 +1,7 @@
 $(function () {
 
+	// get the entire list of open/running favors from the blockchain
+
 	$(window).on('hashchange', function(){
 		// On every hash change the render function is called with the new hash.
 		// This is how the navigation of our app happens.
@@ -11,22 +13,17 @@ $(function () {
 		// Get the keyword from the url.
 		var temp = url.split('/')[0];
 
-		// Hide whatever page is currently shown.
 		$('.main-content .page').addClass('d-none');
-		//$('.main-content .page').hide();
-		//document.getElementById(temp.slice(1)).removeClass('invisible');
 
 		var map = {
 
 			// The Homepage.
 			'': function() {
-				$('#do_a_favor').removeClass('d-none');
-
+				renderOpenListings();
 			},
 
 			'#DoAFavor': function() {
-				$('#do_a_favor').removeClass('d-none');
-
+				renderOpenListings();
 			},
 
 			// My open favor requests
@@ -41,6 +38,10 @@ $(function () {
 
 			},
 
+			'#Apply': function() {
+				renderFavorApplication(url.split[1]);
+			},
+
 			// Single Products page.
 			'#product': function() {
 
@@ -49,24 +50,6 @@ $(function () {
 
 				renderSingleProductPage(index, products);
 			},
-
-			// Page with filtered products
-			'#filter': function() {
-
-				// Grab the string after the '#filter/' keyword. Call the filtering function.
-				url = url.split('#filter/')[1].trim();
-
-				// Try and parse the filters object from the query string.
-				try {
-					filters = JSON.parse(url);
-				}
-				// If it isn't a valid json, go back to homepage ( the rest of the code won't be executed ).
-				catch(err) {
-					window.location.hash = '#';
-				}
-
-				renderFilterResults(filters, products);
-			}
 
 		};
 
@@ -82,21 +65,19 @@ $(function () {
 	}
 
 
-	function generateAllProductsHTML(data){
-		// Uses Handlebars to create a list of products using the provided data.
-		// This function is called only once on page load.
-	}
-
-	function renderOpenListings(data){
-		// Hides and shows products in the All Products Page depending on the data it recieves.
-	}
-
-	function renderSingleProductPage(index, data){
-		// Shows the Single Product Page with appropriate data.
+	function renderOpenListings(){
+				$('#do_a_favor').removeClass('d-none');
 	}
 
 	function renderErrorPage(){
-		// Shows the error page.
+		console.log("Error: no such Favor!");
+	}
+
+	function renderFavorApplication(favorId) {
+		if (favorId === undefined) {
+			return renderErrorPage();
+		}
+		$('#apply_for_favor').removeClass('d-none');
 	}
 
 	function createQueryHash(filters){
