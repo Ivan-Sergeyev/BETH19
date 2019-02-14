@@ -133,7 +133,7 @@ $(function () {
 
             // todo: add desc
             '#Apply': function() {
-                renderFavorApplication(url.split[1]);
+                renderFavorApplication(url.split('/')[1], mockListings);
             },
 
             // Single Products page.
@@ -164,14 +164,17 @@ $(function () {
 
 
     function renderErrorPage(){
-        console.log("Error: no such Favor!");
     }
 
-    function renderFavorApplication(favorId) {
-        if (favorId === undefined) {
+    function renderFavorApplication(favorId, data) {
+		console.log("Rendering favor " + favorId);
+        if (favorId === undefined || data === undefined) {
+			console.log("Error: no such Favor!");
             return renderErrorPage();
         }
+		
         $('#apply_for_favor').removeClass('d-none');
+        $('#apply_for_favor').append(renderListingTemplate(data[favorId]));
     }
 
     function createQueryHash(filters){
@@ -199,6 +202,7 @@ $(function () {
 	function renderListingTemplate(fields) {
 		var template = $("#listingTemplate").clone();
 		template[0].id = "";
+		template.removeClass('d-none');
 		template.find('.listingTitle').text(fields.title);
 		template.find('.listingDescription').text(fields.description);
 		template.find('.listingCategory').text(fields.category);
