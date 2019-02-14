@@ -1,5 +1,5 @@
-var Adoption = artifacts.require("Adoption");
+var Favor = artifacts.require("Favor");
 
 module.exports = function(deployer) {
-  deployer.deploy(Adoption);
+  deployer.deploy(Favor);
 };
