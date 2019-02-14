@@ -12,7 +12,6 @@ $(function () {
 	render('');
 
 
-
 	function render(url) {
 		// Get the keyword from the url.
 		var temp = url.split('/')[0];
@@ -94,8 +93,13 @@ $(function () {
 	
 	function update() {
 		// set the balance
+
+	}
+
+	function updateBalance(balance) {
 		$('#balance').text(getBalance() + ' ');
 	}
+
 
 	function getBalance() {
 		return 3;
