@@ -76,6 +76,7 @@ App = {
                 favorInstance = instance;
                 return favorInstance.getUserBalance.call(accounts[0]);
             }).then(function(result) {
+                console.log(result);
                 console.log(result.c[0]);
             }).catch(function(err) {
                 console.log(err.message);
