@@ -1,6 +1,12 @@
 App = {
     // ==================== member variables ====================
 
+    listings = [
+        {"title": "Help writing an essay", "category": 3, "description": "My son needs help for a school project" , "location": "Zurich", "requester_addr": "0x1324", "performer_addr": "0x3212", },
+        {"title": "Water my plants", "category": 2, "description": "Need someone to water 13 plants" , "location": "Zurich", "requester_addr": "0x3212", "performer_addr": "0x0000"},
+        {"title": "Driver for elderly lady", "category": 1, "description": "Grandma can't drive, needs a ride" , "location": "Zurich", "requester_addr": "0x3242", "performer_addr": "0x0000"},
+    ]
+
     web3Provider: null,
     favor_contract_instance: null,
     contracts: {},
@@ -270,7 +276,7 @@ $(function () {
             // todo: add desc
             '#Apply': function() {
                 // TODO: real listings
-                renderFavorApplication(url.split('/')[1], mockListings);
+                renderFavorApplication(url.split('/')[1], App.listings);
             },
 
             // Single Products page.
@@ -303,7 +309,7 @@ $(function () {
     function getUserRequests() {
         // get a list of all listings that have been requested by the user
         // TODO: logic
-        var userRequests = mockListings.slice(0,2);
+        var userRequests = App.listings.slice(0,2);
         return userRequests;
     }
 
@@ -334,7 +340,7 @@ $(function () {
     }
 
     function renderAllListings(data){
-        data = mockListings;
+        data = App.listings;
         for (i = 0; i < data.length; i++) {
             data[i]['id'] = i;
         }
@@ -343,7 +349,7 @@ $(function () {
 
     function renderAllListings(data){
         // TODO: logic
-        data = mockListings;
+        data = App.listings;
         for (i = 0; i < data.length; i++) {
             data[i]['id'] = i;
         }
@@ -386,8 +392,3 @@ function updateBalance(balance) {
     $('#balance').text(balance + ' ');
 }
 
-mockListings = [
-    {"title": "Help writing an essay", "category": 3, description: "My son needs help for a school project" , "location": "Zurich", "requester_addr": "0x1324", "performer_addr": "0x3212"},
-    {"title": "Water my plants", "category": 2, description: "Need someone to water 13 plants" , "location": "Zurich", "requester_addr": "0x3212", "performer_addr": "0x0000"},
-    {"title": "Driver for elderly lady", "category": 1, description: "Grandma can't drive, needs a ride" , "location": "Zurich", "requester_addr": "0x3242", "performer_addr": "0x0000"},
-]
