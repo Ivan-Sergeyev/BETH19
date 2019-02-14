@@ -97,7 +97,7 @@ $(function () {
 	}
 
 	function updateBalance(balance) {
-		$('#balance').text(getBalance() + ' ');
+		$('#balance').text(balance + ' ');
 	}
 
 
@@ -106,3 +106,7 @@ $(function () {
 	}
 
 });
+
+function updateBalance(balance) {
+		$('#balance').text(balance + ' ');
+}
