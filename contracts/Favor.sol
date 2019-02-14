@@ -70,6 +70,7 @@ contract Favor {
 
     // get idx of the first listing in unordered list
     function getListingsHeadIdx() external view returns (bytes32) {
+        require(_isListingHead(listings_head_idx),"No listings");
         return listings_head_idx;
     }
 

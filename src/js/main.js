@@ -1,7 +1,11 @@
 App = {
+    // ==================== member variables ====================
+
     web3Provider: null,
     favor_contract_instance: null,
     contracts: {},
+
+    // ==================== init ====================
 
     init: async function() {
         // init code (loading assets from jsons) goes here
@@ -53,7 +57,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        BalanceChangedCallback(result.args.user_addr);
+                        App.BalanceChangedCallback(result.args.user_addr);
                     }
                 });
 
@@ -63,7 +67,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        ListingAcceptedCallback(listing_idx);
+                        App.ListingAcceptedCallback(result.args.listing_idx);
                     }
                 });
 
@@ -73,7 +77,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        ListingAbortedCallback(listing_idx);
+                        App.ListingAbortedCallback(result.args.listing_idx);
                     }
                 });
 
@@ -83,7 +87,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        ListingAbortRequestCallback(listing_idx);
+                        App.ListingAbortRequestCallback(result.args.listing_idx);
                     }
                 });
 
@@ -93,7 +97,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        ListingCompletedCallback(listing_idx);
+                        App.ListingCompletedCallback(result.args.listing_idx);
                     }
                 });
 
@@ -103,7 +107,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        ListingCompleteRequestCallback(listing_idx);
+                        App.ListingCompleteRequestCallback(result.args.listing_idx);
                     }
                 });
 
@@ -113,7 +117,7 @@ App = {
                     if (error) {
                         console.log(error);
                     } else {
-                        ListingCreatedCallback(listing_idx);
+                        App.ListingCreatedCallback(result.args.listing_idx);
                     }
                 });
 
@@ -130,11 +134,6 @@ App = {
 
                 // -------------------- retrieve listings --------------------
                 // function getListingInfo(bytes32 _listing_idx) external view returns (bytes32, bytes32, address, address, uint, bytes32, bytes32, bytes32, uint) {
-                getListings: function() {
-                    App.favor_contract_instance.getListingsHeadIdx.call().then(function(result) {
-
-                    });
-                };
 
             }).catch(function(err) {
                 console.log(err.message);
@@ -142,10 +141,46 @@ App = {
         });
     },
 
+    // listing logic
+
+    getListings: function() {
+        App.favor_contract_instance.getListingsHeadIdx.call().then(async function(result) {
+            var data = [];
+            var idx = result.args.next_listing_idx;
+
+            while(1) {
+                result = await App.favor_contract_instance.getListingInfo.call(idx);
+                if(listing.args.next_listing_idx == idx) {
+                    break;
+                } else {
+                    data.push(ResultToListing(result.args));
+                    idx = listing.args.next_listing_idx;
+                }
+            }
+
+            renderAllListings(data);
+        });
+    },
+
+    resultToListing: function(result) {
+        return {
+            "requester_addr": result.requester_addr,
+            "performer_addr": result.performer_addr,
+            "cost_fvr": result.cost_fvr,
+            "title": result.title,
+            "location": result.location,
+            "description": result.description,
+            "category": result.category
+        };
+    }
+
+    // ==================== event callbacks ====================
+
     BalanceChangedCallback: function(user_addr) {
         if (user_addr == web3.eth.accounts[0]) {
             console.log("Get balance");
             App.favor_contract_instance.getUserBalance.call().then(function(result) {
+                console.log(result);
                 console.log("user balance:", result.c[0]);
                 $('#balance').text(result.c[0] + ' ');
             }).catch(function(err) {
@@ -177,6 +212,8 @@ App = {
     ListingCreatedCallback: function(listing_idx) {
         console.log("Not implemented");
     },
+
+    // ==================== button functions ====================
 
     testBuyFVR: function(buy_amount) {
         App.favor_contract_instance.testBuyFVR({from: web3.eth.accounts[0], value: buy_amount});
