@@ -47,13 +47,13 @@ contract Favor {
 
     // ==================== events ====================
 
-    event BalanceChanged(address _user_addr);
-    event ListingAccepted(bytes32 _listing_idx);
-    event ListingAborted(bytes32 _listing_idx);
-    event ListingAbortRequest(bytes32 _listing_idx);
-    event ListingCompleted(bytes32 _listing_idx);
-    event ListingCompleteRequest(bytes32 _listing_idx);
-    event ListingCreated(bytes32 _listing_idx);
+    event BalanceChanged(address user_addr);
+    event ListingAccepted(bytes32 listing_idx);
+    event ListingAborted(bytes32 listing_idx);
+    event ListingAbortRequest(bytes32 listing_idx);
+    event ListingCompleted(bytes32 listing_idx);
+    event ListingCompleteRequest(bytes32 listing_idx);
+    event ListingCreated(bytes32 listing_idx);
 
     // ==================== external functions ====================
 
@@ -68,8 +68,14 @@ contract Favor {
         emit BalanceChanged(msg.sender);
     }
 
+    // get idx of the first listing in unordered list
+    function getListingsHeadIdx() external view returns (bytes32) {
+        return listings_head_idx;
+    }
+
     // get basic information about listing
     function getListingInfo(bytes32 _listing_idx) external view returns (bytes32, bytes32, address, address, uint, bytes32, bytes32, bytes32, uint) {
+        require(_isListingEmpty(_listing_idx), "Empty listing");
         Listing memory listing = listings[_listing_idx];
         return (listing.prev_listing_idx, listing.next_listing_idx,
                 listing.requester_addr, listing.performer_addr, listing.cost_fvr,
@@ -77,8 +83,7 @@ contract Favor {
     }
 
     // create a request listing
-    function createListingRequest(uint _cost_fvr,
-            bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
+    function createListingRequest(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
         require(users[msg.sender].balance_fvr >= 2 * _cost_fvr, "Insufficient funds");
         // deduct funds
         users[msg.sender].balance_fvr -= 2 * _cost_fvr;
@@ -91,8 +96,7 @@ contract Favor {
     }
 
     // create an offer listing
-    function createListingOffer(uint _cost_fvr,
-            bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
+    function createListingOffer(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
         // check if user has sufficient funds
         require(users[msg.sender].balance_fvr >= _cost_fvr, "Insufficient funds");
 
@@ -239,8 +243,7 @@ contract Favor {
     }
 
     // create listing
-    function _createListing(address _requester_addr, address _performer_addr, uint _cost_fvr,
-            bytes32 _title, bytes32 _location, bytes32 _description, uint _category) private returns (bytes32 listing_idx) {
+    function _createListing(address _requester_addr, address _performer_addr, uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) private returns (bytes32 listing_idx) {
         // use hash as index
         listing_idx = keccak256(abi.encodePacked(_requester_addr, _performer_addr, _cost_fvr,
             _title, _location, _description, _category));

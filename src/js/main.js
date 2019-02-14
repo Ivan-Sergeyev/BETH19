@@ -42,45 +42,144 @@ App = {
             // Set the provider for our contract
             App.contracts.Favor.setProvider(App.web3Provider);
 
-            // save favor contract instance
             App.contracts.Favor.deployed().then(function(instance) {
                 App.favor_contract_instance = instance;
+
+                // -------------------- bind events --------------------
+
+                // bind event BalanceChanged(address user_addr);
+                App.favor_contract_instance.BalanceChanged().watch(function(error, result) {
+                    console.log("On BalanceChanged");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        BalanceChangedCallback(result.args.user_addr);
+                    }
+                });
+
+                // bind event ListingAccepted(bytes32 listing_idx);
+                App.favor_contract_instance.ListingAccepted().watch(function(error, result) {
+                    console.log("On ListingAccepted");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        ListingAcceptedCallback(listing_idx);
+                    }
+                });
+
+                // bind event ListingAborted(bytes32 listing_idx);
+                App.favor_contract_instance.ListingAborted().watch(function(error, result) {
+                    console.log("On ListingAborted");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        ListingAbortedCallback(listing_idx);
+                    }
+                });
+
+                // bind event ListingAbortRequest(bytes32 listing_idx);
+                App.favor_contract_instance.ListingAbortRequest().watch(function(error, result) {
+                    console.log("On ListingAbortRequest");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        ListingAbortRequestCallback(listing_idx);
+                    }
+                });
+
+                // bind event ListingCompleted(bytes32 listing_idx);
+                App.favor_contract_instance.ListingCompleted().watch(function(error, result) {
+                    console.log("On ListingCompleted");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        ListingCompletedCallback(listing_idx);
+                    }
+                });
+
+                // bind event ListingCompleteRequest(bytes32 listing_idx);
+                App.favor_contract_instance.ListingCompleteRequest().watch(function(error, result) {
+                    console.log("On ListingCompleteRequest");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        ListingCompleteRequestCallback(listing_idx);
+                    }
+                });
+
+                // bind event ListingCreated(bytes32 listing_idx);
+                App.favor_contract_instance.ListingCreated().watch(function(error, result) {
+                    console.log("On ListingCreated");
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        ListingCreatedCallback(listing_idx);
+                    }
+                });
+
+                // -------------------- bind button presses --------------------
+                // example:
+                // $(document).on('click', '.btn-favor', App.getUserBalance);
+                // ...
+                // function createListingRequest(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
+                // function createListingOffer(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
+                // function acceptListingRequest(bytes32 _listing_idx) external {
+                // function acceptListingOffer(bytes32 _listing_idx) external {
+                // function requestAbortListing(bytes32 _listing_idx) external {
+                // function requestCompleteListing(bytes32 _listing_idx) external {
+
+                // -------------------- retrieve listings --------------------
+                // function getListingInfo(bytes32 _listing_idx) external view returns (bytes32, bytes32, address, address, uint, bytes32, bytes32, bytes32, uint) {
+                getListings: function() {
+                    App.favor_contract_instance.getListingsHeadIdx.call().then(function(result) {
+
+                    });
+                };
+
             }).catch(function(err) {
                 console.log(err.message);
             });
-
-            // init code (function calls) goes here
-            // ...
         });
-
-        return App.bindEvents();
     },
 
-    bindEvents: function() {
-        $(document).on('click', '.btn-favor', App.getUserBalance /*this is an example*/);
-        // button actions are binded here
-        // ...
+    BalanceChangedCallback: function(user_addr) {
+        if (user_addr == web3.eth.accounts[0]) {
+            console.log("Get balance");
+            App.favor_contract_instance.getUserBalance.call().then(function(result) {
+                console.log("user balance:", result.c[0]);
+                $('#balance').text(result.c[0] + ' ');
+            }).catch(function(err) {
+                console.log(err.message);
+            });
+        }
     },
 
-    getUserBalance: function(callback) {
-        App.favor_contract_instance.getUserBalance.call().then(function(result) {
-            console.log("user balance:", result.c[0]);
-            callback(result.c[0]);
-        }).catch(function(err) {
-            console.log(err.message);
-        });
+    ListingAcceptedCallback: function(listing_idx) {
+        console.log("Not implemented");
+    },
+
+    ListingAbortedCallback: function (listing_idx) {
+        console.log("Not implemented");
+    },
+
+    ListingAbortRequestCallback: function (listing_idx) {
+        console.log("Not implemented");
+    },
+
+    ListingCompletedCallback: function(listing_idx) {
+        console.log("Not implemented");
+    },
+
+    ListingCompleteRequestCallback: function(listing_idx) {
+        console.log("Not implemented");
+    },
+
+    ListingCreatedCallback: function(listing_idx) {
+        console.log("Not implemented");
     },
 
     testBuyFVR: function(buy_amount) {
-        App.favor_contract_instance.testBuyFVR(
-            {from: web3.eth.accounts[0], value: buy_amount}
-        ).then(function() {
-            App.updateUserBalance();
-        });
-    },
-
-    getListings: function() {
-        ;
+        App.favor_contract_instance.testBuyFVR({from: web3.eth.accounts[0], value: buy_amount});
     }
 };
 
@@ -155,24 +254,23 @@ $(function () {
 
     function renderOpenListings(){
         $('#do_a_favor').removeClass('d-none');
-		updateListings();
+        updateListings();
     }
 
-	function updateListings() {
-		$('#do_a_favor').append(renderAllListings());
-	}
-
+    function updateListings() {
+        $('#do_a_favor').append(renderAllListings());
+    }
 
     function renderErrorPage(){
     }
 
     function renderFavorApplication(favorId, data) {
-		console.log("Rendering favor " + favorId);
+        console.log("Rendering favor " + favorId);
         if (favorId === undefined || data === undefined) {
-			console.log("Error: no such Favor!");
+            console.log("Error: no such Favor!");
             return renderErrorPage();
         }
-		
+
         $('#apply_for_favor').removeClass('d-none');
         $('#apply_for_favor').append(renderListingTemplate(data[favorId]));
     }
@@ -185,32 +283,26 @@ $(function () {
         // set the balance
     }
 
-
-
-    function updateBalance(balance) {
-        $('#balance').text(balance + ' ');
+    function renderAllListings(data){
+        data = mockListings;
+        for (i = 0; i < data.length; i++) {
+            data[i]['id'] = i;
+        }
+        return data.map(renderListingTemplate);
     }
 
-	function renderAllListings(data){
-		data = mockListings;
-		for (i = 0; i < data.length; i++) {
-			data[i]['id'] = i;
-		}
-		return data.map(renderListingTemplate);
-	}
-
-	function renderListingTemplate(fields) {
-		var template = $("#listingTemplate").clone();
-		template[0].id = "";
-		template.removeClass('d-none');
-		template.find('.listingTitle').text(fields.title);
-		template.find('.listingDescription').text(fields.description);
-		template.find('.listingCategory').text(fields.category);
-		template.find('.listingCost').text(fields.cost);
-		template.find('.listingLocation').text(fields.location);
-		template.find('a').attr('href', '#Apply/'+fields.id);
-		return template;
-	}
+    function renderListingTemplate(fields) {
+        var template = $("#listingTemplate").clone();
+        template[0].id = "";
+        template.removeClass('d-none');
+        template.find('.listingTitle').text(fields.title);
+        template.find('.listingDescription').text(fields.description);
+        template.find('.listingCategory').text(fields.category);
+        template.find('.listingCost').text(fields.cost);
+        template.find('.listingLocation').text(fields.location);
+        template.find('a').attr('href', '#Apply/'+fields.id);
+        return template;
+    }
 });
 
 function updateBalance(balance) {
@@ -218,7 +310,7 @@ function updateBalance(balance) {
 }
 
 mockListings = [
-	{"title": "Help writing an essay", "category": 3, description: "My son needs help for a school project" , "location": "Zurich"},
-	{"title": "Water my plants", "category": 2, description: "Need someone to water 13 plants" , "location": "Zurich"},
-	{"title": "Driver for elderly lady", "category": 1, description: "Grandma cant drive, needs a ride" , "location": "Zurich"},
+    {"title": "Help writing an essay", "category": 3, description: "My son needs help for a school project" , "location": "Zurich"},
+    {"title": "Water my plants", "category": 2, description: "Need someone to water 13 plants" , "location": "Zurich"},
+    {"title": "Driver for elderly lady", "category": 1, description: "Grandma cant drive, needs a ride" , "location": "Zurich"},
 ]
