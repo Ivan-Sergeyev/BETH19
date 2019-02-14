@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="utf-8">
 		<title>Favors</title>
 		<link rel="stylesheet" href="css/bootstrap.min.css" >
 		<link rel="stylesheet" href="css/cover.css" >
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+		 <script type="text/JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" ></script>
 	</head>
 
 	<body class="text-center">
@@ -13,16 +15,43 @@
 				<div class="inner">
 					<h3 class="masthead-brand">Favor</h3>
 					<nav class="nav nav-masthead justify-content-center">
-						<a class="nav-link active" href="#">Do a Favor</a>
-						<a class="nav-link" href="#">My Favors</a>
-						<a class="nav-link" href="#">My Requests</a>
+						<a class="nav-link active" href="#DoAFavor">Do a Favor</a>
+						<a class="nav-link" href="#MyFavors">My Favors</a>
+						<a class="nav-link" href="#MyRequests">My Requests</a>
 					</nav>
 				</div>
 			</header>
 
 		<main role="main" class="inner cover">
 
-			<div class="accept_listing page pt-5 pb-5 text-left">
+			<div class="accept_listing page pt-5 pb-5 text-left" id="my_favors">
+				<h4 class="display-4 mt-5 mb-5">My Favors</h4>
+				<div class="card listing text-left mb-1 mt-2">
+					<div class="card-body">
+						<h5 class="card-title">Help my son write an essay</h5>
+						<p class="mb-2 text-muted text-right">1 <i class="far fa-smile-beam"></i></p>
+
+						<p class="mb-2 text-muted text-right">
+						<i class="fas fa-star"></i>
+						<i class="fas fa-star"></i>
+						<i class="fas fa-star"></i>
+						<h6 class="card-subtitle mb-2 text-muted">900 m</h6>
+						<p class="card-text"> Lorem Ipsum</p>
+
+						<div class="favor-state" id="favor_running">
+							<div class="alert alert-primary">
+								<h5>Ongoing...</h5>
+								<a href="#" class="btn btn-secondary">Favor completed!</a>
+							</div>
+						</div>
+					</div>
+				</div>
+					<div class="request">
+					</div>
+
+
+			</div>
+			<div class="accept_listing page pt-5 pb-5 text-left" id="my_requests">
 				<h4 class="display-4 mt-5 mb-5">My Requests</h4>
 				<div class="card listing text-left mb-1 mt-2">
 					<div class="card-body">
@@ -61,7 +90,7 @@
 
 			</div>
 
-			<div class="apply_for_listing page pt-5 pb-5 text-left">
+			<div class="apply_for_listing page pt-5 pb-5 text-left" id="apply_for_favor">
 					<h4 class="display-4 mt-5 mb-5">Favor</h4>
 					<h5 class="display-5">Take my aunt to the doctor</h5>
 					<p class="mb-2 text-muted text-right">2 FVR</p>
@@ -74,7 +103,7 @@
 					<a href="#" class="btn btn-favor">Apply for favor!</a>
 			</div>
 
-			<div class="create_listing page pt-5 pb-5">
+			<div class="create_listing page pt-5 pb-5" id="request_favor">
 				<h4 class="display-4 mt-5 mb-5">Ask for a favor</h4>
 				<form>
 					<div class="form-group">
@@ -119,10 +148,11 @@
 
 			</div>
 
-			<div class="open_listings page pt-5 pb-5" >
+			<div class="open_listings page pt-5 pb-5" id="do_a_favor">
+				<h4 class="display-4 mt-5 mb-5">Do someone a Favor!</h4>
 
 				<!-- Listing -->
-				<div class="card listing text-left mb-1 mt-2">
+				<div class="card listing text-left mb-1 mt-2 page">
 					<div class="card-body">
 						<h5 class="card-title">Water my plants</h5>
 						<p class="mb-2 text-muted text-right">1 <i class="far fa-smile-beam"></i></p>
@@ -183,5 +213,6 @@
 
 
 			</div>
+			<script src="js/main.js"></script>
 		</body>
 </html> 
