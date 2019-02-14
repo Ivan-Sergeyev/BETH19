@@ -1,11 +1,32 @@
 App = {
     // ==================== member variables ====================
 
-    listings = [
-        {"title": "Help writing an essay", "category": 3, "description": "My son needs help for a school project" , "location": "Zurich", "requester_addr": "0x1324", "performer_addr": "0x3212", },
-        {"title": "Water my plants", "category": 2, "description": "Need someone to water 13 plants" , "location": "Zurich", "requester_addr": "0x3212", "performer_addr": "0x0000"},
-        {"title": "Driver for elderly lady", "category": 1, "description": "Grandma can't drive, needs a ride" , "location": "Zurich", "requester_addr": "0x3242", "performer_addr": "0x0000"},
-    ]
+    listings: [
+        {
+            "title": "Help writing an essay",
+            "category": 3,
+            "description": "My son needs help for a school project",
+            "location": "Zurich",
+            "requester_addr": "0x1324",
+            "performer_addr": "0x3212"
+        },
+        {
+            "title": "Water my plants",
+            "category": 2,
+            "description": "Need someone to water 13 plants",
+            "location": "Zurich",
+            "requester_addr": "0x3212",
+            "performer_addr": "0x0000"
+        },
+        {
+            "title": "Driver for elderly lady",
+            "category": 1,
+            "description": "Grandma can't drive, needs a ride",
+            "location": "Zurich",
+            "requester_addr": "0x3242",
+            "performer_addr": "0x0000"
+        }
+    ],
 
     web3Provider: null,
     favor_contract_instance: null,
@@ -67,118 +88,106 @@ App = {
                     }
                 });
 
-                // bind event ListingAccepted(bytes32 listing_idx);
+                // bind event ListingAccepted(bytes32 listing_id);
                 App.favor_contract_instance.ListingAccepted().watch(function(error, result) {
                     console.log("On ListingAccepted");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingAcceptedCallback(result.args.listing_idx);
+                        App.ListingAcceptedCallback(result.args.listing_id);
                     }
                 });
 
-                // bind event ListingAborted(bytes32 listing_idx);
+                // bind event ListingAborted(bytes32 listing_id);
                 App.favor_contract_instance.ListingAborted().watch(function(error, result) {
                     console.log("On ListingAborted");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingAbortedCallback(result.args.listing_idx);
+                        App.ListingAbortedCallback(result.args.listing_id);
                     }
                 });
 
-                // bind event ListingAbortRequest(bytes32 listing_idx);
+                // bind event ListingAbortRequest(bytes32 listing_id);
                 App.favor_contract_instance.ListingAbortRequest().watch(function(error, result) {
                     console.log("On ListingAbortRequest");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingAbortRequestCallback(result.args.listing_idx);
+                        App.ListingAbortRequestCallback(result.args.listing_id);
                     }
                 });
 
-                // bind event ListingCompleted(bytes32 listing_idx);
+                // bind event ListingCompleted(bytes32 listing_id);
                 App.favor_contract_instance.ListingCompleted().watch(function(error, result) {
                     console.log("On ListingCompleted");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingCompletedCallback(result.args.listing_idx);
+                        App.ListingCompletedCallback(result.args.listing_id);
                     }
                 });
 
-                // bind event ListingCompleteRequest(bytes32 listing_idx);
+                // bind event ListingCompleteRequest(bytes32 listing_id);
                 App.favor_contract_instance.ListingCompleteRequest().watch(function(error, result) {
                     console.log("On ListingCompleteRequest");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingCompleteRequestCallback(result.args.listing_idx);
+                        App.ListingCompleteRequestCallback(result.args.listing_id);
                     }
                 });
 
-                // bind event ListingCreated(bytes32 listing_idx);
+                // bind event ListingCreated(bytes32 listing_id);
                 App.favor_contract_instance.ListingCreated().watch(function(error, result) {
                     console.log("On ListingCreated");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingCreatedCallback(result.args.listing_idx);
+                        App.ListingCreatedCallback(result.args.listing_id);
                     }
+                });
+
+                // get listings
+                console.log("1");
+                App.favor_contract_instance.getListingsHeadId.call().then(function(result) {
+                    console.log("2");
+                    console.log(result);
+                    var data = [];
+                    var idx = result.args.next_listing_id;
+
+                    while(1) {
+                        result = App.favor_contract_instance.getListingInfo.call(idx);
+                        if(listing.args.next_listing_id == idx) {
+                            break;
+                        } else {
+                            data.push(result.args);
+                            idx = listing.args.next_listing_id;
+                        }
+                    }
+
+                    renderAllListings(data);
                 });
 
                 // -------------------- bind button presses --------------------
                 // example:
                 // $(document).on('click', '.btn-favor', App.getUserBalance);
                 // ...
-                // function createListingRequest(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
-                // function createListingOffer(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_idx) {
-                // function acceptListingRequest(bytes32 _listing_idx) external {
-                // function acceptListingOffer(bytes32 _listing_idx) external {
-                // function requestAbortListing(bytes32 _listing_idx) external {
-                // function requestCompleteListing(bytes32 _listing_idx) external {
+                // function createListingRequest(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_id) {
+                // function createListingOffer(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_id) {
+                // function acceptListingRequest(bytes32 _listing_id) external {
+                // function acceptListingOffer(bytes32 _listing_id) external {
+                // function requestAbortListing(bytes32 _listing_id) external {
+                // function requestCompleteListing(bytes32 _listing_id) external {
 
                 // -------------------- retrieve listings --------------------
-                // function getListingInfo(bytes32 _listing_idx) external view returns (bytes32, bytes32, address, address, uint, bytes32, bytes32, bytes32, uint) {
+                // function getListingInfo(bytes32 _listing_id) external view returns (bytes32, bytes32, address, address, uint, bytes32, bytes32, bytes32, uint) {
 
             }).catch(function(err) {
                 console.log(err.message);
             });
         });
     },
-
-    // listing logic
-
-    getListings: function() {
-        App.favor_contract_instance.getListingsHeadIdx.call().then(async function(result) {
-            var data = [];
-            var idx = result.args.next_listing_idx;
-
-            while(1) {
-                result = await App.favor_contract_instance.getListingInfo.call(idx);
-                if(listing.args.next_listing_idx == idx) {
-                    break;
-                } else {
-                    data.push(ResultToListing(result.args));
-                    idx = listing.args.next_listing_idx;
-                }
-            }
-
-            renderAllListings(data);
-        });
-    },
-
-    resultToListing: function(result) {
-        return {
-            "requester_addr": result.requester_addr,
-            "performer_addr": result.performer_addr,
-            "cost_fvr": result.cost_fvr,
-            "title": result.title,
-            "location": result.location,
-            "description": result.description,
-            "category": result.category
-        };
-    }
 
     // ==================== event callbacks ====================
 
@@ -195,27 +204,27 @@ App = {
         }
     },
 
-    ListingAcceptedCallback: function(listing_idx) {
+    ListingAcceptedCallback: function(listing_id) {
         console.log("Not implemented");
     },
 
-    ListingAbortedCallback: function (listing_idx) {
+    ListingAbortedCallback: function (listing_id) {
         console.log("Not implemented");
     },
 
-    ListingAbortRequestCallback: function (listing_idx) {
+    ListingAbortRequestCallback: function (listing_id) {
         console.log("Not implemented");
     },
 
-    ListingCompletedCallback: function(listing_idx) {
+    ListingCompletedCallback: function(listing_id) {
         console.log("Not implemented");
     },
 
-    ListingCompleteRequestCallback: function(listing_idx) {
+    ListingCompleteRequestCallback: function(listing_id) {
         console.log("Not implemented");
     },
 
-    ListingCreatedCallback: function(listing_idx) {
+    ListingCreatedCallback: function(listing_id) {
         console.log("Not implemented");
     },
 
