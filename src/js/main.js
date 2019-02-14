@@ -189,8 +189,6 @@ App = {
         });
     },
 
-    // ==================== event callbacks ====================
-
     BalanceChangedCallback: function(user_addr) {
         if (user_addr == web3.eth.accounts[0]) {
             console.log("Get balance");
