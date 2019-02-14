@@ -1,11 +1,11 @@
 App = {
     // ==================== member variables ====================
 
-    listings = [
-        {"title": "Help writing an essay", "category": 3, "description": "My son needs help for a school project" , "location": "Zurich", "requester_addr": "0x1324", "performer_addr": "0x3212", },
+    listings: [
+        {"title": "Help writing an essay", "category": 3, "description": "My son needs help for a school project", "location": "Zurich", "requester_addr": "0x1324", "performer_addr": "0x3212"},
         {"title": "Water my plants", "category": 2, "description": "Need someone to water 13 plants" , "location": "Zurich", "requester_addr": "0x3212", "performer_addr": "0x0000"},
-        {"title": "Driver for elderly lady", "category": 1, "description": "Grandma can't drive, needs a ride" , "location": "Zurich", "requester_addr": "0x3242", "performer_addr": "0x0000"},
-    ]
+        {"title": "Driver for elderly lady", "category": 1, "description": "Grandma can't drive, needs a ride" , "location": "Zurich", "requester_addr": "0x3242", "performer_addr": "0x0000"}
+    ],
 
     web3Provider: null,
     favor_contract_instance: null,
@@ -178,7 +178,7 @@ App = {
             "description": result.description,
             "category": result.category
         };
-    }
+    },
 
     // ==================== event callbacks ====================
 
