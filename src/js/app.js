@@ -3,20 +3,23 @@ App = {
     contracts: {},
 
     init: async function() {
-        // Load pets.
-        $.getJSON('../tasks.json', function(data) {
-          var listingsRow = $('#listingsRow');
-          var listingTemplate = $('#listingTemplate');
+        // // Load pets.
+        // $.getJSON('../pets.json', function(data) {
+        //   var petsRow = $('#petsRow');
+        //   var petTemplate = $('#petTemplate');
 
-          for (i = 0; i < data.length; i ++) {
-            listingTemplate.find('.taskTitle').text(data[i].title);
-            listingTemplate.find('taskPrice').innerHTML = data[i].price;
-            listingTemplate.find('.taskDescription').text(data[i].description);
-            listingTemplate.find('.taskLocation').text(data[i].location);
-            listingTemplate.find('.btn-favor').attr('data-id', data[i].id);
-            listingsRow.append(listingTemplate.html());
-          }
-        });
+        //   for (i = 0; i < data.length; i ++) {
+        //     petTemplate.find('.panel-title').text(data[i].name);
+        //     petTemplate.find('img').attr('src', data[i].picture);
+        //     petTemplate.find('.pet-breed').text(data[i].breed);
+        //     petTemplate.find('.pet-age').text(data[i].age);
+        //     petTemplate.find('.pet-location').text(data[i].location);
+        //     petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
+
+        //     petsRow.append(petTemplate.html());
+        //   }
+        // });
+
         return await App.initWeb3();
     },
 
@@ -73,6 +76,7 @@ App = {
                 favorInstance = instance;
                 return favorInstance.getUserBalance.call(accounts[0]);
             }).then(function(result) {
+                console.log(result);
                 console.log(result.c[0]);
             }).catch(function(err) {
                 console.log(err.message);
