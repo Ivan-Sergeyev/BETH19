@@ -8,12 +8,20 @@ $(function () {
 		render(decodeURI(window.location.hash));
 	});
 
+	// render home page by default
+	render('');
+
+
 
 	function render(url) {
 		// Get the keyword from the url.
 		var temp = url.split('/')[0];
 
+
 		$('.main-content .page').addClass('d-none');
+
+		// call generic update function
+		update();
 
 		var map = {
 
@@ -82,6 +90,15 @@ $(function () {
 
 	function createQueryHash(filters){
 		// Get the filters object, turn it into a string and write it into the hash.
+	}
+	
+	function update() {
+		// set the balance
+		$('#balance').text(getBalance() + ' ');
+	}
+
+	function getBalance() {
+		return 3;
 	}
 
 });
