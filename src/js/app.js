@@ -42,7 +42,6 @@ App = {
             App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
         }
         web3 = new Web3(App.web3Provider);
-        web3.eth.defaultAccount = web3.eth.accounts[0];
 
         return App.initContract();
     },
@@ -57,30 +56,27 @@ App = {
             App.contracts.Favor.setProvider(App.web3Provider);
 
             // // Use our contract to retrieve and mark the adopted pets
-            return App.handleButtonPress();
+            return App.getUserBalance();
         });
 
         return App.bindEvents();
     },
 
     bindEvents: function() {
-        $(document).on('click', '.btn-favor', App.handleButtonPress);
+        $(document).on('click', '.btn-favor', App.getUserBalance);
     },
 
-    handleButtonPress: function(account) {
+    getUserBalance: function() {
         var favorInstance;
         web3.eth.getAccounts(function(error, accounts) {
             if (error) {
                 console.log(error);
             }
-
             App.contracts.Favor.deployed().then(function(instance) {
                 favorInstance = instance;
-                console.log(accounts[0]);
-                console.log(web3.eth.defaultAccount);
-                console.log(favorInstance.getUserBalance(accounts[0]));
+                return favorInstance.getUserBalance.call(accounts[0]);
             }).then(function(result) {
-                console.log(result);
+                console.log(result.c[0]);
             }).catch(function(err) {
                 console.log(err.message);
             });
