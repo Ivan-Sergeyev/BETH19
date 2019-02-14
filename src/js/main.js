@@ -63,7 +63,7 @@ App = {
     },
 
     getUserBalance: function(callback) {
-        App.favor_contract_instance.getUserBalance.call(web3.eth.accounts[0]).then(function(result) {
+        App.favor_contract_instance.getUserBalance.call().then(function(result) {
             console.log("user balance:", result.c[0]);
             callback(result.c[0]);
         }).catch(function(err) {
