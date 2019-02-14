@@ -279,12 +279,16 @@ $(function () {
                 renderFavorApplication(url.split('/')[1], App.listings);
             },
 
-            // Single Products page.
-            '#product': function() {
-                // Get the index of which product we want to show and call the appropriate function.
-                var index = url.split('#product/')[1].trim();
-                renderSingleProductPage(index, products);
+            '#TransactApplication': function() {
+                transactApplication(url.split('/')[1], App.listings);
+            },
+
+            '#TransactAccept': function() {
+                transactAccept(url.split('/')[1], App.listings);
             }
+
+
+
         };
 
         if(map[temp]){
@@ -295,6 +299,7 @@ $(function () {
             renderErrorPage();
         }
     }
+
 
     function renderOpenListings(){
         $('#do_a_favor').removeClass('d-none');
@@ -313,6 +318,18 @@ $(function () {
         return userRequests;
     }
 
+    function transactApplication(favorId) {
+
+        // Todo
+        alert('Your transaction has been completed')
+
+    }
+    function transactAccept(favorId) {
+
+        // Todo
+        alert('Your transaction has been completed')
+
+    }
     function updateListings() {
         $('#do_a_favor').append(renderAllListings());
     }
@@ -328,8 +345,8 @@ $(function () {
         }
 
         $('#apply_for_favor').removeClass('d-none');
-        $('#apply_for_favor').append(renderListingTemplate(data.filter(
-            fav => {return fav.id == favorId;})
+        $('#apply_for_favor').append(renderApplicationTemplate(data.filter(
+            fav => {return fav.id == favorId;})[0]
         ));
     }
 
@@ -365,6 +382,19 @@ $(function () {
         return template;
     }
 
+    function renderApplicationTemplate(fields) {
+        var template = $("#favorApplicationTemplate").clone();
+        template[0].id = "";
+        template.removeClass('d-none');
+        template.find('.listingTitle').text(fields.title);
+        template.find('.listingDescription').text(fields.description);
+        template.find('.listingCategory').text(fields.category);
+        template.find('.listingCost').text(fields.cost);
+        template.find('.listingLocation').text(fields.location);
+        template.find('a').attr('href', '#TransactApplication/'+fields.id);
+        return template;
+    }
+
     function renderRequestTemplate(fields) {
         var template = $("#RequestTemplate").clone();
         template[0].id = "";
@@ -375,7 +405,7 @@ $(function () {
         template.find('.listingCost').text(fields.cost);
         template.find('.listingLocation').text(fields.location);
         template.find('.performerAddress').text(fields.performer_addr);
-        template.find('a').attr('href', '#Apply/'+fields.id);
+        template.find('a').attr('href', '#TransactAccept/'+fields.id);
         // TODO: change 0x0000 to the ethereum NULL address
         if (fields.performer_addr != '0x0000') {
             template.find('.favor_available').removeClass('d-none');
