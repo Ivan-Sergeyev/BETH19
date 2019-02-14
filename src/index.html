@@ -151,63 +151,7 @@
 
 			<div class="open_listings page pt-5 pb-5" id="do_a_favor">
 				<h4 class="display-4 mt-5 mb-5">Do someone a Favor!</h4>
-
-				<!-- Listing -->
-				<div class="card listing text-left mb-1 mt-2 page">
-					<div class="card-body">
-						<h5 class="card-title">Water my plants</h5>
-						<p class="mb-2 text-muted text-right">1 <i class="far fa-smile-beam"></i></p>
-
-						<p class="mb-2 text-muted text-right">
-						<i class="far fa-star"></i>
-						<i class="far fa-star"></i>
-						<i class="fas fa-star"></i>
-						<h6 class="card-subtitle mb-2 text-muted">400 m</h6>
-						<p class="card-text">Need someone to water my plants tomorrow.</p>
-						<a href="#Apply/" class="card-link btn btn-favor">I'll do this!</a>
-					</div>
-				</div>
-				<div class="card listing text-left">
-					<div class="card-body">
-						<h5 class="card-title">Help me move my desk</h5>
-						<p class="mb-2 text-muted text-right">2 FVR</p>
-						<p class="mb-2 text-muted text-right">
-						<i class="far fa-star"></i>
-						<i class="fas fa-star"></i>
-						<i class="fas fa-star"></i>
-						<h6 class="card-subtitle mb-2 text-muted">900 m</h6>
-						<p class="card-text">Need some help to move my desk to my new home.</p>
-						<a href="#Apply/" class="card-link btn btn-favor">I'll do this!</a>
-					</div>
-				</div>
-				<div class="card listing text-left">
-					<div class="card-body">
-						<h5 class="card-title">Fix my bike</h5>
-						<p class="mb-2 text-muted text-right">1 FVR</p>
-						<p class="mb-2 text-muted text-right">
-						<i class="far fa-star"></i>
-						<i class="far fa-star"></i>
-						<i class="fas fa-star"></i>
-						<h6 class="card-subtitle mb-2 text-muted">900 m</h6>
-						<p class="card-text">My bike does not seem to brake anymore. I think it might be the cable.</p>
-						<a href="#Apply/" class="card-link btn btn-favor">I'll do this!</a>
-					</div>
-				</div>
-				<div class="card listing text-left">
-					<div class="card-body">
-						<h5 class="card-title">Take my aunt to the doctor</h5>
-						<p class="mb-2 text-muted text-right">2 FVR</p>
-						<p class="mb-2 text-muted text-right">
-						<i class="fas fa-star"></i>
-						<i class="fas fa-star"></i>
-						<i class="fas fa-star"></i>
-						<h6 class="card-subtitle mb-2 text-muted">900 m</h6>
-						<p class="card-text">My aunt cannot drive. Since I'm out of town, she'll need a lift.</p>
-						<a href="#Apply/" class="card-link btn btn-favor">I'll do this!</a>
-					</div>
-				</div>
-				<!-- Listing END -->
-
+				<!-- Listings go here -->
 			</div>
 
 		</main>
@@ -223,3 +167,20 @@
 			<script src="js/truffle-contract.js"></script>
 		</body>
 </html>
+
+<div id="listingTemplate">
+	<div class="card listing text-left mb-1 mt-2 page">
+		<div class="card-body">
+			<h5 class="card-title listingTitle" >Water my plants</h5>
+			<p class="mb-2 text-muted text-right listingPrice">1 <i class="far fa-smile-beam"></i></p>
+
+			<p class="mb-2 text-muted text-right listingReputation">
+			<i class="far fa-star"></i>
+			<i class="far fa-star"></i>
+			<i class="fas fa-star"></i>
+			<h6 class="card-subtitle mb-2 text-muted listingDistance">400 m</h6>
+			<p class="card-text listingDescription"></p>
+			<a href="#Apply/" class="card-link btn btn-favor">I'll do this!</a>
+		</div>
+	</div>
+</div>

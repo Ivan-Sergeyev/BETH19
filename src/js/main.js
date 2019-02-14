@@ -155,7 +155,13 @@ $(function () {
 
     function renderOpenListings(){
         $('#do_a_favor').removeClass('d-none');
+		updateListings();
     }
+
+	function updateListings() {
+		$('#do_a_favor').append(renderAllListings());
+	}
+
 
     function renderErrorPage(){
         console.log("Error: no such Favor!");
@@ -176,11 +182,39 @@ $(function () {
         // set the balance
     }
 
+
+
     function updateBalance(balance) {
         $('#balance').text(balance + ' ');
     }
+
+	function renderAllListings(data){
+		data = mockListings;
+		for (i = 0; i < data.length; i++) {
+			data[i]['id'] = i;
+		}
+		return data.map(renderListingTemplate);
+	}
+
+	function renderListingTemplate(fields) {
+		var template = $("#listingTemplate").clone();
+		template[0].id = "";
+		template.find('.listingTitle').text(fields.title);
+		template.find('.listingDescription').text(fields.description);
+		template.find('.listingCategory').text(fields.category);
+		template.find('.listingCost').text(fields.cost);
+		template.find('.listingLocation').text(fields.location);
+		template.find('a').attr('href', '#Apply/'+fields.id);
+		return template;
+	}
 });
 
 function updateBalance(balance) {
     $('#balance').text(balance + ' ');
 }
+
+mockListings = [
+	{"title": "Help writing an essay", "category": 3, description: "My son needs help for a school project" , "location": "Zurich"},
+	{"title": "Water my plants", "category": 2, description: "Need someone to water 13 plants" , "location": "Zurich"},
+	{"title": "Driver for elderly lady", "category": 1, description: "Grandma cant drive, needs a ride" , "location": "Zurich"},
+]
