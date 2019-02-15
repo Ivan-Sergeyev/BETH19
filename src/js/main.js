@@ -1,51 +1,58 @@
+const NULL_ADDR = '0x0000000000000000000000000000000000000000';
+
 App = {
     // ==================== member variables ====================
 
     web3Provider: null,
     contracts: {},
-    favor_contract_instance: null,
+    billboard: [],
 
-    listings: [],
-    mock_listings: [
-        {
-            "id": 242,
-            "title": "Help writing an essay",
-            "category": 3,
-            "description": "My son needs help for a school project",
-            "location": "Zurich",
-            "requester_addr": "0x1324",
-            "performer_addr": "0x3212"
-        },
-        {
-            "id": 211,
-            "title": "Water my plants",
-            "category": 2,
-            "description": "Need someone to water 13 plants",
-            "location": "Zurich",
-            "requester_addr": "0x3212",
-            "performer_addr": "0x0000"
-        },
-        {
-            "id": 219,
-            "title": "Driver for elderly lady",
-            "category": 1,
-            "description": "Grandma can't drive, needs a ride",
-            "location": "Zurich",
-            "requester_addr": "0x3242",
-            "performer_addr": "0x0000"
-        }
-    ],
+    // mock_billboard: [
+    //     {
+    //         "id": 242,
+    //         "title": "Help writing an essay",
+    //         "category": 3,
+    //         "description": "My son needs help for a school project",
+    //         "location": "Zurich",
+    //         "requester_addr": "0x1324",
+    //         "performer_addr": "0x3212"
+    //     },
+    //     {
+    //         "id": 211,
+    //         "title": "Water my plants",
+    //         "category": 2,
+    //         "description": "Need someone to water 13 plants",
+    //         "location": "Zurich",
+    //         "requester_addr": "0x3212",
+    //         "performer_addr": "0x0000"
+    //     },
+    //     {
+    //         "id": 219,
+    //         "title": "Driver for elderly lady",
+    //         "category": 1,
+    //         "description": "Grandma can't drive, needs a ride",
+    //         "location": "Zurich",
+    //         "requester_addr": "0x3242",
+    //         "performer_addr": "0x0000"
+    //     }
+    // ],
+
+    defaultErrorHandler: function(err) {
+        console.log(err.message);
+    },
 
     // ==================== init ====================
 
+    // initializes App
     init: async function() {
+        console.log("in App.init()");
         // init code (loading assets from jsons) goes here
-        // ...
-
         return await App.initWeb3();
     },
 
+    // initializes web3
     initWeb3: async function() {
+        console.log("in App.initWeb3()");
         if (window.ethereum) {
             // Modern dapp browsers
             App.web3Provider = window.ethereum;
@@ -65,183 +72,353 @@ App = {
         }
         web3 = new Web3(App.web3Provider);
 
-        return App.initContract();
+        // init contract
+        await App.initContract();
+
+        // bind button presses
+        // todo
+
+        // example:
+        // $(document).on('click', '.btn-favor', App.getUserBalance);
+        // ...
+        // function createFavorRequest(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 favor_id) {
+        // function createFavorOffer(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 favor_id) {
+        // function acceptFavorRequest(bytes32 _favor_id) external {
+        // function acceptFavorOffer(bytes32 _favor_id) external {
+        // function requestAbortFavor(bytes32 _favor_id) external {
+        // function requestCompleteFavor(bytes32 _favor_id) external {
     },
 
-    initContract: function() {
-        $.getJSON('Favor.json', function(data) {
+    // initializes FavorExchange contract
+    initContract: async function() {
+        console.log("in App.initContract()");
+        $.getJSON('FavorExchange.json', function(data) {
             // Get the necessary contract artifact file and instantiate it with truffle-contract
-            var FavorArtifact = data;
-            App.contracts.Favor = TruffleContract(FavorArtifact);
+            App.contracts.FavorExchange = TruffleContract(data);
 
             // Set the provider for our contract
-            App.contracts.Favor.setProvider(App.web3Provider);
+            App.contracts.FavorExchange.setProvider(App.web3Provider);
 
-            App.contracts.Favor.deployed().then(function(instance) {
-                // get contract instance
-                App.favor_contract_instance = instance;
-
+            App.contracts.FavorExchange.deployed().then(function(instance) {
                 // -------------------- bind events --------------------
 
-                // bind event BalanceChanged(address user_addr);
-                console.log("Bind event BalanceChanged");
-                App.favor_contract_instance.BalanceChanged().watch(function(error, result) {
-                    console.log("On BalanceChanged");
+                // bind event BalanceChanged(address user_addr)
+                console.log("bind event BalanceChanged");
+                instance.BalanceChanged().watch(function(error, result) {
+                    console.log("on BalanceChanged");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.BalanceChangedCallback(result.args.user_addr);
+                        App.onBalanceChanged(result.args.user_addr);
                     }
                 });
 
-                // bind event ListingAccepted(bytes32 listing_id);
-                console.log("Bind event ListingAccepted");
-                App.favor_contract_instance.ListingAccepted().watch(function(error, result) {
-                    console.log("On ListingAccepted");
+                // bind event FavorCreated(bytes32 favor_id)
+                console.log("bind event FavorCreated");
+                instance.FavorCreated().watch(function(error, result) {
+                    console.log("on FavorCreated");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingAcceptedCallback(result.args.listing_id);
+                        App.onFavorCreated(result.args.favor_id);
                     }
                 });
 
-                // bind event ListingAborted(bytes32 listing_id);
-                console.log("Bind event ListingAborted");
-                App.favor_contract_instance.ListingAborted().watch(function(error, result) {
-                    console.log("On ListingAborted");
+                // bind event FavorAccepted(bytes32 favor_id)
+                console.log("bind event FavorAccepted");
+                instance.FavorAccepted().watch(function(error, result) {
+                    console.log("on FavorAccepted");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingAbortedCallback(result.args.listing_id);
+                        App.onFavorAccepted(result.args.favor_id);
                     }
                 });
 
-                // bind event ListingAbortRequest(bytes32 listing_id);
-                console.log("Bind event ListingAbortRequest");
-                App.favor_contract_instance.ListingAbortRequest().watch(function(error, result) {
-                    console.log("On ListingAbortRequest");
+                // bind event FavorVoteCancel(bytes32 favor_id)
+                console.log("bind event FavorVoteCancel");
+                instance.FavorVoteCancel().watch(function(error, result) {
+                    console.log("on FavorVoteCancel");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingAbortRequestCallback(result.args.listing_id);
+                        App.onFavorVoteCancel(result.args.favor_id);
                     }
                 });
 
-                // bind event ListingCompleted(bytes32 listing_id);
-                console.log("Bind event ListingCompleted");
-                App.favor_contract_instance.ListingCompleted().watch(function(error, result) {
-                    console.log("On ListingCompleted");
+                // bind event FavorCancel(bytes32 favor_id)
+                console.log("bind event FavorCancel");
+                instance.FavorCancel().watch(function(error, result) {
+                    console.log("on FavorCancel");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingCompletedCallback(result.args.listing_id);
+                        App.onFavorCancel(result.args.favor_id);
                     }
                 });
 
-                // bind event ListingCompleteRequest(bytes32 listing_id);
-                console.log("Bind event ListingCompleteRequest");
-                App.favor_contract_instance.ListingCompleteRequest().watch(function(error, result) {
-                    console.log("On ListingCompleteRequest");
+                // bind event FavorVoteDone(bytes32 favor_id)
+                console.log("bind event FavorVoteDone");
+                instance.FavorVoteDone().watch(function(error, result) {
+                    console.log("on FavorVoteDone");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingCompleteRequestCallback(result.args.listing_id);
+                        App.onFavorVoteDone(result.args.favor_id);
                     }
                 });
 
-                // bind event ListingCreated(bytes32 listing_id);
-                console.log("Bind event ListingCreated");
-                App.favor_contract_instance.ListingCreated().watch(function(error, result) {
-                    console.log("On ListingCreated");
+                // bind event FavorDone(bytes32 favor_id)
+                console.log("bind event FavorDone");
+                instance.FavorDone().watch(function(error, result) {
+                    console.log("on FavorDone");
                     if (error) {
                         console.log(error);
                     } else {
-                        App.ListingCreatedCallback(result.args.listing_id);
+                        App.onFavorDone(result.args.favor_id);
                     }
                 });
 
-                // get listings
-                console.log("Get listings");
-                App.favor_contract_instance.getListingsHeadId.call().then(function(result) {
-                    console.log("2");
-                    console.log(result);
-                    var data = [];
-                    var idx = result.args.next_listing_id;
+                // -------------------- set up page elements --------------------
 
-                    while(1) {
-                        result = App.favor_contract_instance.getListingInfo.call(idx);
-                        if(listing.args.next_listing_id == idx) {
-                            break;
-                        } else {
-                            data.push(result.args);
-                            idx = listing.args.next_listing_id;
-                        }
-                    }
+                // retrieve and display balance
+                App.onBalanceChanged(web3.eth.accounts[0]);
 
-                    renderAllListings(data);
-                });
+                // retrieve and display billboard
+                App.onGetBillboard();
 
-                // -------------------- bind button presses --------------------
-                // example:
-                // $(document).on('click', '.btn-favor', App.getUserBalance);
-                // ...
-                // function createListingRequest(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_id) {
-                // function createListingOffer(uint _cost_fvr, bytes32 _title, bytes32 _location, bytes32 _description, uint _category) external returns (bytes32 listing_id) {
-                // function acceptListingRequest(bytes32 _listing_id) external {
-                // function acceptListingOffer(bytes32 _listing_id) external {
-                // function requestAbortListing(bytes32 _listing_id) external {
-                // function requestCompleteListing(bytes32 _listing_id) external {
-
-                // -------------------- retrieve listings --------------------
-                // function getListingInfo(bytes32 _listing_id) external view returns (bytes32, bytes32, address, address, uint, bytes32, bytes32, bytes32, uint) {
-
-            }).catch(function(err) {
-                console.log(err.message);
-            });
+            }).catch(App.defaultErrorHandler);
         });
     },
 
-    BalanceChangedCallback: function(user_addr) {
+    // -------------------- callbacks --------------------
+
+    onBalanceChanged: function(user_addr) {
+        console.log("in App.onBalanceChanged(", user_addr, ")");
         if (user_addr == web3.eth.accounts[0]) {
-            console.log("Get balance");
-            App.favor_contract_instance.getUserBalance.call().then(function(result) {
-                console.log(result);
+            console.log("get balance");
+            App.contracts.FavorExchange.deployed().then(function(instance) {
+                return instance.getUserBalance.call();
+            }).then(function(result) {
                 console.log("user balance:", result.c[0]);
-                $('#balance').text(result.c[0] + ' ');
-            }).catch(function(err) {
-                console.log(err.message);
-            });
+                App.uiRenderBalance(result.c[0]);
+            }).catch(App.defaultErrorHandler);
         }
     },
 
-    ListingAcceptedCallback: function(listing_id) {
+    onFavorAccepted: function(favor_id) {
+        console.log("in App.onFavorAccepted(", favor_id, ")");
         console.log("Not implemented");
     },
 
-    ListingAbortedCallback: function (listing_id) {
+    onFavorCancel: function (favor_id) {
+        console.log("in App.onFavorCancel(", favor_id, ")");
         console.log("Not implemented");
     },
 
-    ListingAbortRequestCallback: function (listing_id) {
+    onFavorVoteCancel: function (favor_id) {
+        console.log("in App.onFavorVoteCancel(", favor_id, ")");
         console.log("Not implemented");
     },
 
-    ListingCompletedCallback: function(listing_id) {
+    onFavorDone: function(favor_id) {
+        console.log("in App.onFavorDone(", favor_id, ")");
         console.log("Not implemented");
     },
 
-    ListingCompleteRequestCallback: function(listing_id) {
+    onFavorVoteDone: function(favor_id) {
+        console.log("in App.onFavorVoteDone(", favor_id, ")");
         console.log("Not implemented");
     },
 
-    ListingCreatedCallback: function(listing_id) {
+    onFavorCreated: function(favor_id) {
+        console.log("in App.onFavorCreated(", favor_id, ")");
         console.log("Not implemented");
     },
 
-    // ==================== button functions ====================
+    // -------------------- button functions --------------------
 
-    testBuyFVR: function(buy_amount) {
-        App.favor_contract_instance.testBuyFVR({from: web3.eth.accounts[0], value: buy_amount});
+    testBuyToken: function(buy_amount) {
+        console.log("in App.testBuyToken(", buy_amount, ")");
+        App.contracts.FavorExchange.deployed().then(function(instance) {
+            console.log(instance);
+            instance.testBuyToken({from: web3.eth.accounts[0], value: buy_amount});
+        }).catch(App.defaultErrorHandler);
+    },
+
+    // ---------- billboard population ----------
+
+    testPopulateBillboard: function() {
+        console.log("in App.testPopulateBillboard()");
+        App.contracts.FavorExchange.deployed().then(function(instance) {
+            return instance.testPopulateBillboard(web3.eth.accounts[0]);
+        }).then(function(result) {
+            App.onGetBillboard();
+        }).catch(App.defaultErrorHandler);
+    },
+
+    onGetBillboard: function() {
+        console.log("in App.onGetBillboard()");
+        var favor_exchange_instance;
+        App.billboard = [];
+
+        App.contracts.FavorExchange.deployed().then(function(instance) {
+            favor_exchange_instance = instance;
+            return favor_exchange_instance.getFavorsHeadId.call();
+        }).then(function(result) {
+            console.log("result:", result);
+            App.addFavorToBillboard(result);
+        }).catch(App.defaultErrorHandler);
+    },
+
+    addFavorToBillboard: function(favor_id) {
+        console.log("in App.addFavorToBillboard(", favor_id, ")");
+
+        App.contracts.FavorExchange.deployed().then(function(instance) {
+            return instance.getFavorInfo.call(favor_id);
+        }).then(function(result) {
+            var favor = App.getFavorJSON(result);
+            console.log("considering favor:", favor);
+            favor_nonempty = !(App.isFavorEmpty(favor));
+
+            if(favor_nonempty) {
+                App.billboard.push(favor);
+            }
+
+            if(favor_nonempty && (favor.next_favor_id != favor_id)) {
+                App.addFavorToBillboard(favor.next_favor_id);
+            } else {
+                console.log("complete billboard:", App.billboard);
+                App.uiRenderAllFavors();
+            }
+        }).catch(App.defaultErrorHandler);
+    },
+
+    isFavorEmpty: function(favor) {
+        return (favor.client_addr == NULL_ADDR) && (favor.provider_addr == NULL_ADDR);
+    },
+
+    getFavorJSON: function(raw_data) {
+        return {
+            "prev_favor_id" : raw_data[0],
+            "next_favor_id" : raw_data[1],
+            "client_addr" : raw_data[2],
+            "provider_addr" : raw_data[3],
+            "cost" : raw_data[4].c[0],
+            "title" : raw_data[5],
+            "location" : raw_data[6],
+            "description" : raw_data[7],
+            "category" : raw_data[8].c[0]
+        };
+    },
+
+    // -------------------- UI --------------------
+
+    uiRenderBalance: function(balance) {
+        $('#balance').text(balance + ' ');
+    },
+
+    uiRenderAllFavors: function() {
+        // todo: separate open requests, open offers and active favors and use corresponding templates?
+        data = App.billboard;
+        return data.map(App.fillRequestTemplate);
+    },
+
+    uiRenderOpenFavors: function() {
+        $('#do_a_favor').removeClass('d-none');
+        App.uiRenderFavors();
+    },
+
+    uiRenderRequests: function() {
+        $('#my_requests').removeClass('d-none');
+        $('#my_requests').append(App.getUserRequests().map(App.fillRequestTemplate));
+    },
+
+    getUserRequests: function() {
+        // get a list of all favors requested by the user
+        // todo: logic
+        var userRequests = App.billboard.slice(0,2);
+        return userRequests;
+    },
+
+    uiTransactApplication: function(favorId) {
+        // todo
+        alert('Your transaction has been completed');
+    },
+
+    uiTransactAccept: function(favorId) {
+        // todo
+        alert('Your transaction has been completed');
+    },
+
+    uiRenderFavors: function() {
+        $('#do_a_favor').append(App.uiRenderAllFavors());
+    },
+
+    uiRenderErrorPage: function() {
+        // todo
+    },
+
+    uiRenderFavorApplication: function(favorId, data) {
+        console.log("Rendering favor " + favorId);
+        if (favorId === undefined || data === undefined) {
+            console.log("Error: no such Favor!");
+            return renderErrorPage();
+        }
+
+        $('#apply_for_favor').removeClass('d-none');
+        $('#apply_for_favor').append(renderApplicationTemplate(data.filter(
+            fav => {return fav.id == favorId;})[0]
+        ));
+    },
+
+    createQueryHash: function(filters) {
+        // todo: get the filters object, turn it into a string and write it into the hash.
+    },
+
+    fillFavorTemplate: function(fields) {
+        var template = $("#favorTemplate").clone();
+        template[0].id = "";
+        template.removeClass('d-none');
+        template.find('.favorTitle').text(fields.title);
+        template.find('.favorDescription').text(fields.description);
+        template.find('.favorCategory').text(fields.category);
+        template.find('.favorCost').text(fields.cost);
+        template.find('.favorLocation').text(fields.location);
+        template.find('a').attr('href', '#Apply/'+fields.id);
+        return template;
+    },
+
+    fillOfferTemplate: function(fields) {
+        var template = $("#favorApplicationTemplate").clone();
+        template[0].id = "";
+        template.removeClass('d-none');
+        template.find('.favorTitle').text(fields.title);
+        template.find('.favorDescription').text(fields.description);
+        template.find('.favorCategory').text(fields.category);
+        template.find('.favorCost').text(fields.cost);
+        template.find('.favorLocation').text(fields.location);
+        template.find('a').attr('href', '#TransactApplication/'+fields.id);
+        return template;
+    },
+
+    fillRequestTemplate: function(fields) {
+        var template = $("#RequestTemplate").clone();
+        template[0].id = "";
+        template.removeClass('d-none');
+        template.find('.favorTitle').text(fields.title);
+        template.find('.favorDescription').text(fields.description);
+        template.find('.favorCategory').text(fields.category);
+        template.find('.favorCost').text(fields.cost);
+        template.find('.favorLocation').text(fields.location);
+        template.find('.performerAddress').text(fields.performer_addr);
+        template.find('a').attr('href', '#TransactAccept/'+fields.id);
+        // TODO: change 0x0000 to the ethereum NULL address
+        if (fields.performer_addr != '0x0000') {
+            template.find('.favor_available').removeClass('d-none');
+            template.find('.favor_pending').addClass('d-none');
+        }
+        return template;
     }
 };
 
@@ -250,12 +427,10 @@ App = {
 $(function () {
     $(window).load(function() {
         App.init();
-
-        // todo: get the entire list of open/running favors from the blockchain
     });
 
-    $(window).on('hashchange', function(){
-        // On every hash change the render function is called with the new hash.
+    $(window).on('hashchange', function() {
+        // on every hash change the render function is called with the new hash.
         // This is how the navigation of our app happens.
         render(decodeURI(window.location.hash));
     });
@@ -269,22 +444,19 @@ $(function () {
 
         $('.main-content .page').addClass('d-none');
 
-        // call generic update function
-        update();
-
         var map = {
             // The Homepage.
             '': function() {
-                renderOpenListings();
+                App.uiRenderOpenFavors();
             },
 
             '#DoAFavor': function() {
-                renderOpenListings();
+                App.uiRenderOpenFavors();
             },
 
             // My open favor requests
             '#MyRequests': function() {
-                renderRequests();
+                App.uiRenderRequests();
             },
 
             // Favors I'm currently doing to someone
@@ -294,147 +466,27 @@ $(function () {
 
             // todo: add desc
             '#Apply': function() {
-                // TODO: real listings
-                renderFavorApplication(url.split('/')[1], App.listings);
+                // todo: real billboard
+                App.uiRenderFavorApplication(url.split('/')[1], App.billboard);
             },
 
+            // todo: add desc
             '#TransactApplication': function() {
-                transactApplication(url.split('/')[1], App.listings);
+                App.uiTransactApplication(url.split('/')[1], App.billboard);
             },
 
+            // todo: add desc
             '#TransactAccept': function() {
-                transactAccept(url.split('/')[1], App.listings);
+                App.uiTransactAccept(url.split('/')[1], App.billboard);
             }
-
-
-
         };
 
-        if(map[temp]){
+        if(map[temp]) {
             // Execute the needed function depending on the url keyword (stored in temp).
             map[temp]();
         } else {
             // If the keyword isn't listed in the above - render the error page.
-            renderErrorPage();
+            App.uiRenderErrorPage();
         }
-    }
-
-
-    function renderOpenListings(){
-        $('#do_a_favor').removeClass('d-none');
-        updateListings();
-    }
-
-    function renderRequests() {
-        $('#my_requests').removeClass('d-none');
-        $('#my_requests').append(getUserRequests().map(renderRequestTemplate));
-    }
-
-    function getUserRequests() {
-        // get a list of all listings that have been requested by the user
-        // TODO: logic
-        var userRequests = App.listings.slice(0,2);
-        return userRequests;
-    }
-
-    function transactApplication(favorId) {
-
-        // Todo
-        alert('Your transaction has been completed')
-
-    }
-    function transactAccept(favorId) {
-
-        // Todo
-        alert('Your transaction has been completed')
-
-    }
-    function updateListings() {
-        $('#do_a_favor').append(renderAllListings());
-    }
-
-    function renderErrorPage(){
-    }
-
-    function renderFavorApplication(favorId, data) {
-        console.log("Rendering favor " + favorId);
-        if (favorId === undefined || data === undefined) {
-            console.log("Error: no such Favor!");
-            return renderErrorPage();
-        }
-
-        $('#apply_for_favor').removeClass('d-none');
-        $('#apply_for_favor').append(renderApplicationTemplate(data.filter(
-            fav => {return fav.id == favorId;})[0]
-        ));
-    }
-
-    function createQueryHash(filters){
-        // Get the filters object, turn it into a string and write it into the hash.
-    }
-
-    function update() {
-        // set the balance
-    }
-
-    function renderAllListings(data){
-        data = App.listings;
-        return data.map(renderListingTemplate);
-    }
-
-    function renderAllListings(data){
-        // TODO: logic
-        data = App.listings;
-        return data.map(renderListingTemplate);
-    }
-
-    function renderListingTemplate(fields) {
-        var template = $("#listingTemplate").clone();
-        template[0].id = "";
-        template.removeClass('d-none');
-        template.find('.listingTitle').text(fields.title);
-        template.find('.listingDescription').text(fields.description);
-        template.find('.listingCategory').text(fields.category);
-        template.find('.listingCost').text(fields.cost);
-        template.find('.listingLocation').text(fields.location);
-        template.find('a').attr('href', '#Apply/'+fields.id);
-        return template;
-    }
-
-    function renderApplicationTemplate(fields) {
-        var template = $("#favorApplicationTemplate").clone();
-        template[0].id = "";
-        template.removeClass('d-none');
-        template.find('.listingTitle').text(fields.title);
-        template.find('.listingDescription').text(fields.description);
-        template.find('.listingCategory').text(fields.category);
-        template.find('.listingCost').text(fields.cost);
-        template.find('.listingLocation').text(fields.location);
-        template.find('a').attr('href', '#TransactApplication/'+fields.id);
-        return template;
-    }
-
-    function renderRequestTemplate(fields) {
-        var template = $("#RequestTemplate").clone();
-        template[0].id = "";
-        template.removeClass('d-none');
-        template.find('.listingTitle').text(fields.title);
-        template.find('.listingDescription').text(fields.description);
-        template.find('.listingCategory').text(fields.category);
-        template.find('.listingCost').text(fields.cost);
-        template.find('.listingLocation').text(fields.location);
-        template.find('.performerAddress').text(fields.performer_addr);
-        template.find('a').attr('href', '#TransactAccept/'+fields.id);
-        // TODO: change 0x0000 to the ethereum NULL address
-        if (fields.performer_addr != '0x0000') {
-            template.find('.favor_available').removeClass('d-none');
-            template.find('.favor_pending').addClass('d-none');
-        }
-        return template;
     }
 });
-
-function updateBalance(balance) {
-    $('#balance').text(balance + ' ');
-}
-

@@ -1,5 +1,5 @@
-var Favor = artifacts.require("Favor");
+var FavorExchange = artifacts.require("FavorExchange");
 
 module.exports = function(deployer) {
-  deployer.deploy(Favor);
+  deployer.deploy(FavorExchange);
 };
