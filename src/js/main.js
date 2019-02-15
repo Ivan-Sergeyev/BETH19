@@ -162,7 +162,9 @@ App = {
             });
         });
         // $(document).on('click', '.btn-create-offer', App.createOffer);
-        // $(document).on('click', '.btn-accept-request', App.acceptRequest);
+        $(document).on('click', '.btn-accept-request', () => {
+            App.acceptRequest(this.id);
+        });
         // $(document).on('click', '.btn-accept-fffer', App.acceptOffer);
         // $(document).on('click', '.btn-vote-cancel', App.voteCancel);
         // $(document).on('click', '.btn-vote-done', App.voteDone);
@@ -514,6 +516,7 @@ App = {
         template.find('.favorLocation').text(fields.location);
         template.find('.performerAddress').text(fields.performer_addr);
         template.find('a').attr('href', '#TransactAccept/'+fields.id);
+        template.find('a').attr('id', fields.id);
         // TODO: change 0x0000 to the ethereum NULL address
         if (fields.performer_addr != '0x0000') {
             template.find('.favor_available').removeClass('d-none');
