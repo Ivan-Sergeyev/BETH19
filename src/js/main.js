@@ -536,6 +536,12 @@ $(function () {
         // This is how the navigation of our app happens.
         render(decodeURI(window.location.hash));
     });
+    $('.nav-link').on('click', function() {
+        // on every hash change the render function is called with the new hash.
+        // This is how the navigation of our app happens.
+        render(decodeURI(window.location.hash));
+    });
+
 
     // render home page by default
     render('');
