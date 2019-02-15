@@ -149,10 +149,18 @@ App = {
         // // todo
         console.log("Not implemented");
         // // examples:
-        // $(document).on('click', '.btn-demo-buy-token', App.demoBuyToken);
-        // $(document).on('click', '.btn-demo-populate-billboard', App.demoPopulateBillboard);
-        // $(document).on('click', '.btn-get-user-balance', App.getUserBalance);
-        // $(document).on('click', '.btn-create-request', App.createRequest);
+        $(document).on('click', '.btn-demo-buy-token', App.demoBuyToken);
+        $(document).on('click', '.btn-demo-populate-billboard', App.demoPopulateBillboard);
+        $(document).on('click', '.btn-get-user-balance', () => {App.getUserBalance(App.uiRenderBalance);});
+        $(document).on('click', '.btn-create-request', () => {
+            App.createRequest({
+                "cost": document.getElementById("inputCost").value,
+                "title": document.getElementById("inputTitle").value,
+                "location": document.getElementById("inputLocation").value,
+                "description": document.getElementById("inputDescription").value,
+                "category": document.getElementById("inputCategory").value
+            });
+        });
         // $(document).on('click', '.btn-create-offer', App.createOffer);
         // $(document).on('click', '.btn-accept-request', App.acceptRequest);
         // $(document).on('click', '.btn-accept-fffer', App.acceptOffer);
